@@ -1,7 +1,5 @@
 -- Homework 04
 
-import Data.List (nub)
-
 --------------
 -- Exercise 1
 --------------
@@ -36,7 +34,7 @@ fun2' n = sum . filter even . takeWhile (> 1) $ iterate succ n
 
 data Tree a = Leaf
             | Node Integer (Tree a) a (Tree a)
-    deriving (Eq)
+    deriving (Show, Eq)
 
 -- Directions showing where to insert into the tree
 data Direction = L | R
@@ -60,19 +58,19 @@ insert (x, dss@(R : ds)) (Node _ l y r) = Node (toInteger $ length dss) l y (ins
 insert (x, _) _                         = Node 0 Leaf x Leaf
 
 -- Printing a Tree in a readable manner for easier debugging
-instance (Show a) => Show (Tree a) where
-    show tree = show' tree 1
+printTree :: Show a => Tree a -> IO ()
+printTree = putStrLn . render
 
-show' :: Show a => Tree a -> Int -> String
-show' Leaf n           = "Leaf"
-show' (Node d l x r) n = init . unlines $ ["(Node " ++ (show d),
-                                            space n ++ show' l (n + 1),
-                                            space n ++ show x,
-                                            space n ++ show' r (n + 1),
-                                            space (n - 1) ++ ")"]
+render :: Show a => Tree a -> String
+render Leaf           = "Leaf"
+render (Node d l x r) = "(Node " ++ (show d) ++ "\n"
+                      ++ (unlines . map space . lines $ render l)
+                      ++ (space $ show x) ++ "\n"
+                      ++ (unlines . map space . lines $ render r)
+                      ++ ")"
 
-space :: Int -> String
-space n = concat $ replicate n "|  "
+space :: String -> String
+space = (++) "    "
 
 --------------
 -- Exercise 3
